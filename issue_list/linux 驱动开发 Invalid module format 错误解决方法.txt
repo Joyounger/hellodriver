@@ -1,0 +1,54 @@
+ linux 驱动开发 Invalid module format 错误解决方法
+标签： modulelinuxmakefilegccshellfile
+2007-11-19 11:53 13080人阅读 评论(3) 收藏 举报
+ 分类： kernel（8）  
+版权声明：本文为博主原创文章，未经博主允许不得转载。
+
+我想，很多刚开始学习linux 驱动程序的朋友都和我一样，遇到过类似的问题。
+1. 编译错误（其实这个问题和 Makefile有很大关系)
+2. Invalid module format 错误
+3. insmod: error inserting './hello.ko': -1 File exists
+
+开发环境 
+内核版本： 2.6.22   (我下载的最新版本）
+gcc     :  gcc (GCC) 4.1.2
+
+hello.c 程序可以参考
+http://dev.yesky.com/154/2621154.shtml
+
+Makefile
+gcc -D__KERNEL__ -DMODULE -DLINUX -I /usr/local/src/linux2.4/include -c -o hello.o hello.c
+
+上面这种写法适合 2.4 版本的内核， 在2.6下用这种写法很可能导致许多编译错误，
+即使编译通过也会产生 Invalid module format 错误。
+至于原因请参考
+http://blog.csdn.net/pottichu/archive/2007/11/19/1892203.aspx
+
+2.6下正确的 Makefie 如下：
+
+# Makefile2.6
+ifneq ($(KERNELRELEASE),)
+ #kbuild syntax. dependency relationshsip of files and target modules are listed here.
+ mymodule-objs := hello.o 
+ obj-m := hello.o    
+else
+PWD  := $(shell pwd)
+KVER ?= $(shell uname -r)
+KDIR := /lib/modules/$(KVER)/build
+all:
+ $(MAKE) -C $(KDIR) M=$(PWD) 
+clean:
+rm -rf .*.cmd *.o *.mod.c *.ko .tmp_versions
+endif
+
+使用上面的 Makefie 同时也解决了 Invalid module format 错误
+
+
+insmod: error inserting './hello.ko': -1 File exists 错误 解决
+
+第一次insmod ./hello.ko 没有输出表示你的模块被正常载入了，后来的错误是你重复载入这个模块导致的
+用命令 lsmod | grep hello 看看是不是有这个模块?
+用命令 tail /var/log/messages
+有没有 hello,world
+
+OK 我的第一个module 程序终于正常执行了。 

@@ -1,0 +1,27 @@
+Linux 内核编译出错：make zimage命令；错误提示：make :***No rule to make target ‘zimage’. stop .
+ 分享| 2011-10-21 10:51 aboutnow | 浏览 7327 次
+操作过程及命令如下：
+cd /linux-2.6.29
+make distclean
+make menuconfig
+make zimage
+然后就出现了上述错误提示，请问大虾们可能是什么原因？
+注：我是在虚拟机上运行的红帽企业版5上运行的；
+举报| 2011-10-21 11:17 提问者采纳
+如果你用的是标准内核的话，
+zImage这个target在新内核中，已经不支持了
+你可以考虑用命令make bzImage来代替
+
+另外，
+你可以通过命令make help来查看，你当前的代码中究竟支持哪些target，还有一些很重要的帮助信息，建议仔细阅读。
+
+有问题，请追问。
+追问：
+make bzimage 结果一样，
+使用make help来查看，没有zimage选项，只有
+ Architecture specific targets (x86):
+* bzImage - Compressed kernel image (arch/x86/boot/bzImage)
+install      - Install kernel using
+什么个意思？其他选项如fdimage，isoimage之类的似乎也不合适吧，
+追答：
+注意不是bzimage，而是bzImage，字母“I” 要大写。。。
